@@ -128,7 +128,46 @@ struct RemoteView: View {
                     Text("Enable Upside Down")
                 }
             }
+            
+//  RemoteView.swift
 
+Section {
+    Button(role: mgr.rcready ? .destructive : .none) {
+        if mgr.rcready {
+            // Logic to de-initialize RemoteCall
+            mgr.sbProc?.destroyRemoteCall() // destroyRemoteCall is defined in RemoteCall.h
+            mgr.rcready = false
+            mgr.logmsg("(rc) RemoteCall destroyed.")
+        } else {
+            // Logic to initialize RemoteCall for SpringBoard
+            run("Initializing RemoteCall") {
+                // initWithProcess is the entry point in RemoteCall.h[cite: 1]
+                if let newProc = RemoteCall(process: "SpringBoard", useMigFilterBypass: false) {
+                    mgr.sbProc = newProc
+                    mgr.rcready = true
+                    return "RemoteCall initialized successfully"
+                } else {
+                    return "Failed to initialize RemoteCall: \(RemoteCall.lastInitError() ?? "Unknown error")"
+                }
+            }
+        }
+    } label: {
+        HStack {
+            Text(mgr.rcready ? "Stop RemoteCall" : "Start RemoteCall")
+            Spacer()
+            if running {
+                ProgressView()
+            } else {
+                Circle()
+                    .fill(mgr.rcready ? Color.green : Color.red)
+                    .frame(width: 10, height: 10)
+            }
+        }
+    }
+} header: {
+    Text("Connection Management")
+}
+            
             Section {
                 Button {
                     run("Enable Floating Dock") {
