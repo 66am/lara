@@ -131,41 +131,71 @@ struct RemoteView: View {
             
 //  RemoteView.swift
 
-Section {
-    Button(role: mgr.rcready ? .destructive : .none) {
-        if mgr.rcready {
-            // Logic to de-initialize RemoteCall
-            mgr.sbProc?.destroyRemoteCall() // destroyRemoteCall is defined in RemoteCall.h
-            mgr.rcready = false
-            mgr.logmsg("(rc) RemoteCall destroyed.")
-        } else {
-            // Logic to initialize RemoteCall for SpringBoard
-            run("Initializing RemoteCall") {
-                // initWithProcess is the entry point in RemoteCall.h[cite: 1]
-                if let newProc = RemoteCall(process: "SpringBoard", useMigFilterBypass: false) {
-                    mgr.sbProc = newProc
-                    mgr.rcready = true
-                    return "RemoteCall initialized successfully"
-                } else {
-                    return "Failed to initialize RemoteCall: \(RemoteCall.lastInitError() ?? "Unknown error")"
+struct RemoteView: View {
+    @ObservedObject var mgr: laramgr
+    @State private var running: Bool = false
+    @AppStorage("flora_orange_enabled") private var floraOrange: Bool = false
+
+    var body: some View {
+        List {
+            // New Connection Management Section
+            Section(header: Text("Connection Management")) {
+                Button(role: mgr.rcready ? .destructive : .none) {
+                    if mgr.rcready {
+                        mgr.sbProc?.destroyRemoteCall()[cite: 1, 2]
+                        mgr.rcready = false
+                    } else {
+                        run("Connecting to Messages") {
+                            if let proc = RemoteCall(process: "com.apple.MobileSMS", useMigFilterBypass: false) {[cite: 1, 2]
+                                mgr.sbProc = proc
+                                mgr.rcready = true
+                                return "Connected"
+                            }
+                            return "Failed: \(RemoteCall.lastInitError() ?? "Unknown")"[cite: 1]
+                        }
+                    }
+                } label: {
+                    Text(mgr.rcready ? "Disconnect from Messages" : "Connect to Messages")
                 }
             }
+
+            // Flora Tweak Section
+            Section(header: Text("Flora Tweak")) {
+                Button {
+                    run("Applying Flora Orange") {
+                        // Call the new hardcoded color function
+                        // This uses the underlying RemoteCall logic to modify the target process[cite: 2]
+                        apply_flora_orange(mgr.sbProc)
+                        return "Orange Theme Applied"
+                    }
+                } label: {
+                    HStack {
+                        Text("Hardcode Orange UI")
+                        Spacer()
+                        Image(systemName: "paintpalette.fill")
+                            .foregroundColor(.orange)
+                    }
+                }
+                .disabled(!mgr.rcready)[cite: 3]
+            }
+            
+            // ... existing SpringBoard sections ...[cite: 3]
         }
-    } label: {
-        HStack {
-            Text(mgr.rcready ? "Stop RemoteCall" : "Start RemoteCall")
-            Spacer()
-            if running {
-                ProgressView()
-            } else {
-                Circle()
-                    .fill(mgr.rcready ? Color.green : Color.red)
-                    .frame(width: 10, height: 10)
+        .navigationTitle("Tweaks")
+    }
+
+    private func run(_ name: String, _ work: @escaping () -> String) {[cite: 3]
+        guard !running else { return }
+        running = true
+        mgr.logmsg("(rc) \(name)...")
+        DispatchQueue.global(qos: .userInitiated).async {
+            let result = work()
+            DispatchQueue.main.async {
+                self.mgr.logmsg("(rc) \(result)")
+                self.running = false
             }
         }
     }
-} header: {
-    Text("Connection Management")
 }
             
             Section {
