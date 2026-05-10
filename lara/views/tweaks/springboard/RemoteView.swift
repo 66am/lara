@@ -62,6 +62,30 @@ struct RemoteView: View {
                 Text("SpringBoard")
             }
 
+            // ... existing SpringBoard Tweak buttons ...
+
+// --- ADD THIS SECTION HERE ---
+Section(header: Text("Cylinder Animations")) {
+    Button {
+        run("Applying Cube (Inside)") {
+            // This invokes the logic we added to RemoteCall.m
+            apply_cylinder_cube_inside(mgr.sbProc)
+            return "Cube (Inside) Hooks Applied"
+        }
+    } label: {
+        HStack {
+            Label("Cube (Inside)", systemImage: "cube.transparent.fill")
+            Spacer()
+            Text("3D")
+                .font(.caption)
+                .padding(4)
+                .background(Color.purple.opacity(0.2))
+                .cornerRadius(4)
+        }
+    }
+    .disabled(!mgr.rcready || running) // Only functional when RemoteCall is active
+}
+            
             Section {
                 Stepper(value: $hsColumns, in: 1...10) {
                     HStack {
