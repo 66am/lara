@@ -90,7 +90,7 @@ Important Notes:
 
 ### Fixes
 #### about the kernelcache
-lara needs the **kernelcache** (the iOS kernel binary from your exact iOS version + device) to run. on first launch it runs a patchfinder ([opa334's XPF](https://github.com/opa334/ChOma) via libgrabkernel2) against the kernelcache to locate the kernel symbols and struct offsets the exploit touches — `kernproc`, `rootvnode`, `proc` size, etc. these move on every iOS release and every SoC, so lara can't ship them hardcoded.
+lara needs the **kernelcache** (the iOS kernel binary from your exact iOS version + device) to run. on first launch it runs a patchfinder ([opa334's XPF](https://github.com/opa334/ChOma) via libgrabkernel2) against the kernelcache to locate the kernel symbols and struct offsets the touches — `kernproc`, `rootvnode`, `proc` size, etc. these move on every iOS release and every SoC, so lara can't ship them hardcoded.
 
 the app tries to download the kernelcache for you automatically (the **Download Kernelcache** button in Settings hits Apple's IPSW servers). when that fails — usually a network/CDN hiccup or an unusual device/build combo — grab one manually with the steps below and import it via **Import Kernelcache from Files**.
 
@@ -122,10 +122,10 @@ if things get weird later, **Delete Kernelcache Data** in Settings wipes the cac
 - respringing is needed to apply springboard changes such as font changes.
 
 ## Credits
-- opa334 for the kernel exploit poc, ChOma and XPF
+- opa334 for the poc, ChOma and XPF
 - AppInstaller iOS for help with offsets
 - AlfieCG for libgrabkernel2
 - Everyone who contributed! (Visible <a href="https://github.com/rooootdev/lara/graphs/contributors">Here</a>)
 
 <br> 
-<div align="center">a beautiful kexploit ❤️</div>
+<div align="center">a beautiful ❤️</div>
